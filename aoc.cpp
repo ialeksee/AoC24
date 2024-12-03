@@ -155,10 +155,11 @@ void day3()
   std::vector<std::string> instructions;
   std::vector<int> to_multiply;
   Util::readFile<std::string>("day3.txt", instructions);
+  bool mult_allowed = true;
 
   for(auto str : instructions)
   {
-    std::regex mult_regex("mul\\([0-9]{1,3},[0-9]{1,3}\\)");
+    std::regex mult_regex("mul\\([0-9]{1,3},[0-9]{1,3}\\)|do\\(\\)|don't\\(\\)");
     auto instr_begin = std::sregex_iterator(str.begin(), str.end(), mult_regex);
     auto instr_end = std::sregex_iterator();
     for(std::sregex_iterator i = instr_begin; i != instr_end; ++i)
@@ -166,15 +167,29 @@ void day3()
       std::smatch match = *i;
       std::string match_str = match.str();
       std::regex num_regex("[0-9]{1,3}");
-      auto num_begin = std::sregex_iterator(match_str.begin(), match_str.end(), num_regex);
-      auto num_end = std::sregex_iterator();
-      int num = 1;
-      for(std::sregex_iterator j = num_begin; j != num_end; ++j)
+     if(match_str == "do()")
       {
-	num *= std::stoi((*j).str());
-//	std::cout << num << std::endl;
+  //    std::cout << match_str << std::endl;
+      mult_allowed = true;
       }
-      to_multiply.push_back(num);
+      if(match_str == "don't()")
+	mult_allowed = false;
+      if(mult_allowed)
+      {
+	
+        auto num_begin = std::sregex_iterator(match_str.begin(), match_str.end(), num_regex);
+        auto num_end = std::sregex_iterator();
+        int num = 1;
+	bool add_num = false;
+	for(std::sregex_iterator j = num_begin; j != num_end; ++j)
+	{
+	  num *= std::stoi((*j).str());
+	  add_num = true;
+//	std::cout << num << std::endl;
+        }
+	if(add_num)
+          to_multiply.push_back(num);
+      }
 //      std::cout << match_str << std::endl;
     }
   }
