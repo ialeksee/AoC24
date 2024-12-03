@@ -2,7 +2,7 @@
 #include <iostream>
 #include <cstdlib>
 
-int main()
+void day1()
 {
     std::vector<unsigned int> test_vector;
     std::vector<unsigned int> left;
@@ -26,4 +26,66 @@ int main()
       distance_total += num*std::count(right.begin(), right.end(), num);
     }
     std::cout << distance_total << std::endl; 
+}
+
+void day2()
+{
+  int safe_reports = 0;
+  std::vector<std::vector<unsigned int>> reports;
+  Util::readByLine<unsigned int>("day2.txt", reports);
+
+  for(auto report : reports)
+  {
+    bool is_safe = true;
+    bool is_really_safe = true;
+    bool is_ascending = false;
+    bool is_descending = false;
+    if(report.empty())
+      break;
+    auto iter = report.begin();
+    while(iter + 1 != report.end())
+    {
+      auto diff = std::abs((int)(*(iter + 1) - *iter));
+      if((diff == 0)||(diff > 3))
+      {
+	is_safe = false;
+	break;
+      }
+      if(*(iter + 1) > *iter)
+      {
+	if(!is_descending && !is_ascending)
+	{
+	  is_ascending = true;
+	}
+	else if(is_descending)
+	{  
+	  is_safe = false;
+	  break;
+	}
+      }
+      
+      if(*(iter + 1) < *iter)
+      {
+	if(!is_descending && !is_ascending)
+	{
+	  is_descending = true;
+	}
+	else if(is_ascending)
+	{  
+	  is_safe = false;
+	  break;
+	}
+      }
+      iter++;
+    }
+    if(is_safe)
+      safe_reports++;
+  }
+
+  std::cout << safe_reports << std::endl;
+}
+
+int main()
+{
+  day2();
 }
