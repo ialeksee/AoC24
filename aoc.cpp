@@ -1,6 +1,7 @@
 #include "util.h"
 #include <iostream>
 #include <cstdlib>
+#include <regex>
 
 void day1()
 {
@@ -149,7 +150,44 @@ void day2()
    std::cout << safe_reports << std::endl;
 }
 
+void day3()
+{
+  std::vector<std::string> instructions;
+  std::vector<int> to_multiply;
+  Util::readFile<std::string>("day3.txt", instructions);
+
+  for(auto str : instructions)
+  {
+    std::regex mult_regex("mul\\([0-9]{1,3},[0-9]{1,3}\\)");
+    auto instr_begin = std::sregex_iterator(str.begin(), str.end(), mult_regex);
+    auto instr_end = std::sregex_iterator();
+    for(std::sregex_iterator i = instr_begin; i != instr_end; ++i)
+    {
+      std::smatch match = *i;
+      std::string match_str = match.str();
+      std::regex num_regex("[0-9]{1,3}");
+      auto num_begin = std::sregex_iterator(match_str.begin(), match_str.end(), num_regex);
+      auto num_end = std::sregex_iterator();
+      int num = 1;
+      for(std::sregex_iterator j = num_begin; j != num_end; ++j)
+      {
+	num *= std::stoi((*j).str());
+//	std::cout << num << std::endl;
+      }
+      to_multiply.push_back(num);
+//      std::cout << match_str << std::endl;
+    }
+  }
+  int sum = 0;
+    
+  for(auto mult : to_multiply)
+  {
+    sum += mult;
+  }
+  std::cout << sum << std::endl;
+}
+
 int main()
 {
-  day2();
+  day3();
 }
