@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <regex>
+#include "visualisation.h"
 
 void day1()
 {
@@ -206,18 +207,42 @@ void day4()
 {
   std::vector<std::vector<char>> grid;
   Util::readByLine<char>("day4.txt", grid);
+  Crawler crawl;
 
+  Visualisation display{};
+  display.grid = grid;
+  if (display.Construct(256, 240, 4, 4))
+    display.Start();
+
+
+/*
+  for(int y = 0; y < grid.size(); y++)
+  {
+    for(int x = 0; x < grid[y].size(); x++)
+    {
+//	crawl.moveCrawler(Crawler::Direction::Right);
+	std::cout << grid[y][x];
+    }
+  //  crawl.moveCrawler(Crawler::Direction::Down);
+    std::cout << std::endl;
+  }
   for(auto row : grid)
   {
     for(auto c : row)
     {
-	std::cout << c;
+//	std::cout << c;
     }
-    std::cout << std::endl;
+//    std::cout << std::endl;
   }
+	 */
 }
 
 int main()
 {
+//  Visualisation display{};
+//  if (display.Construct(256, 240, 4, 4))
+//    display.Start();
+
+
   day4();
 }
