@@ -202,7 +202,22 @@ void day3()
   std::cout << sum << std::endl;
 }
 
+void day4()
+{
+  std::vector<std::vector<char>> grid;
+  Util::readByLine<char>("day4.txt", grid);
+
+  for(auto row : grid)
+  {
+    for(auto c : row)
+    {
+	std::cout << c;
+    }
+    std::cout << std::endl;
+  }
+}
+
 int main()
 {
-  day3();
+  day4();
 }
