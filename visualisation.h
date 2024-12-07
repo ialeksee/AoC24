@@ -2,7 +2,7 @@
 #define VISUALISATION_H
 #define OLC_PGE_APPLICATION
 #include "olcPixelGameEngine/olcPixelGameEngine.h"
-#define GRID_SIZE 140
+#define GRID_SIZE 10
 struct Crawler
 {
   unsigned int x{0}, y{0};
@@ -86,7 +86,7 @@ public:
 public:
 	bool OnUserCreate() override
 	{
-		first_characters = false;
+		first_characters = true;
 		crawl.x =0;
 		crawl.y = 0;
 		// Called once at the start, so create things here
@@ -173,18 +173,19 @@ public:
 	    if('X' == grid[crawl.y][crawl.x])
 	    {
 	      unsigned int start_x{crawl.x}, start_y{crawl.y};
+	      std::cout << "X found at x: " << crawl.x << ", Y: " << crawl.y << std::endl;
 	      if(check_for_letter('M'))
 	      {
+		std::cout << "M found at x: " << crawl.x << ", Y: " << crawl.y << std::endl;
 		if(check_for_letter('A'))
 		{
+		  std::cout << "A found at x: " << crawl.x << ", Y: " << crawl.y << std::endl;
 		  if(check_for_letter('S'))
 		  {
 		    xmas_count++;
 		    std::cout << "S found at x: " << crawl.x << ", Y: " << crawl.y << std::endl;
 		  }
-		  std::cout << "A found at x: " << crawl.x << ", Y: " << crawl.y << std::endl;
 		}
-		std::cout << "M found at x: " << crawl.x << ", Y: " << crawl.y << std::endl;
 	      }
 	      crawl.x = start_x;
 	      crawl.y = start_y;

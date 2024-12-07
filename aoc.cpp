@@ -206,7 +206,7 @@ void day3()
 void day4()
 {
   std::vector<std::vector<char>> grid;
-  Util::readByLine<char>("day4.txt", grid);
+  Util::readByLine<char>("test.txt", grid);
   Crawler crawl;
 
   Visualisation display{};
