@@ -17,10 +17,11 @@ struct Crawler
     DOWN_RIGHT
   };
 
-  void moveCrawler(Crawler::Direction dir)
+  bool moveCrawler(Crawler::Direction dir)
   {
     int temp_x = x;
     int temp_y = y;
+    bool has_moved{false};
     switch(dir)
     {
       case Direction::LEFT:
@@ -54,9 +55,16 @@ struct Crawler
     };
 
     if((temp_x >= 0) && (temp_x < GRID_SIZE))
+    {
       x = temp_x;
+      has_moved = true;
+    }
     if((temp_y >= 0) && (temp_y < GRID_SIZE))
+    {
       y = temp_y;
+      has_moved = true;
+    }
+    return has_moved;
   }
 };
 
@@ -69,6 +77,7 @@ public:
 	bool stop_rendering{false};
 	bool end_reached{false};
 	bool end_reached_y{false};
+	bool first_characters{false};
 	Visualisation()
 	{
 		sAppName = "Advent of Code 2024";
@@ -77,6 +86,9 @@ public:
 public:
 	bool OnUserCreate() override
 	{
+		first_characters = false;
+		crawl.x =0;
+		crawl.y = 0;
 		// Called once at the start, so create things here
 		return true;
 	}
@@ -86,43 +98,68 @@ public:
 	  auto check_for_letter = [&] (char c)
 	  {
 	    unsigned int initial_x{crawl.x}, initial_y{crawl.y};
-	    crawl.moveCrawler(Crawler::Direction::LEFT);
-	    if(c == grid[crawl.y][crawl.x])
+	    bool crawler_moved = false;
+	    crawler_moved = crawl.moveCrawler(Crawler::Direction::LEFT);
+	    if((first_characters == false) && crawler_moved)
+	      std::cout << grid[crawl.y][crawl.x];
+
+	    if((crawler_moved)&&(c == grid[crawl.y][crawl.x]))
 	      return true;
 	    crawl.x = initial_x;
 	    crawl.y = initial_y;
-	    crawl.moveCrawler(Crawler::Direction::RIGHT);
-	    if(c == grid[crawl.y][crawl.x])
+	    crawler_moved = crawl.moveCrawler(Crawler::Direction::RIGHT);
+	    if((!first_characters) && crawler_moved)
+	      std::cout << grid[crawl.y][crawl.x];
+
+	    if((crawler_moved)&&(c == grid[crawl.y][crawl.x]))
 	      return true;
 	    crawl.x = initial_x;
 	    crawl.y = initial_y;
-	    crawl.moveCrawler(Crawler::Direction::UP);
-	    if(c == grid[crawl.y][crawl.x])
+	    crawler_moved = crawl.moveCrawler(Crawler::Direction::UP);
+	    if((!first_characters) && crawler_moved)
+	      std::cout << grid[crawl.y][crawl.x];
+
+	    if((crawler_moved)&&(c == grid[crawl.y][crawl.x]))
 	      return true;
 	    crawl.x = initial_x;
 	    crawl.y = initial_y;
-	    crawl.moveCrawler(Crawler::Direction::DOWN);
-	    if(c == grid[crawl.y][crawl.x])
+	    crawler_moved = crawl.moveCrawler(Crawler::Direction::DOWN);
+	    if((!first_characters) && crawler_moved)
+	      std::cout << grid[crawl.y][crawl.x];
+
+	    if((crawler_moved)&&(c == grid[crawl.y][crawl.x]))
 	      return true;
 	    crawl.x = initial_x;
 	    crawl.y = initial_y;
-	    crawl.moveCrawler(Crawler::Direction::UP_LEFT);
-	    if(c == grid[crawl.y][crawl.x])
+	    crawler_moved = crawl.moveCrawler(Crawler::Direction::UP_LEFT);
+	    if((!first_characters) && crawler_moved)
+	      std::cout << grid[crawl.y][crawl.x];
+
+	    if((crawler_moved)&&(c == grid[crawl.y][crawl.x]))
 	      return true;
 	    crawl.x = initial_x;
 	    crawl.y = initial_y;
-	    crawl.moveCrawler(Crawler::Direction::UP_RIGHT);
-	    if(c == grid[crawl.y][crawl.x])
+	    crawler_moved = crawl.moveCrawler(Crawler::Direction::UP_RIGHT);
+	    if((!first_characters) && crawler_moved)
+	      std::cout << grid[crawl.y][crawl.x];
+
+	    if((crawler_moved)&&(c == grid[crawl.y][crawl.x]))
 	      return true;
 	    crawl.x = initial_x;
 	    crawl.y = initial_y;
-	    crawl.moveCrawler(Crawler::Direction::DOWN_RIGHT);
-	    if(c == grid[crawl.y][crawl.x])
+	    crawler_moved = crawl.moveCrawler(Crawler::Direction::DOWN_RIGHT);
+	    if((!first_characters) && crawler_moved)
+	      std::cout << grid[crawl.y][crawl.x];
+
+	    if((crawler_moved)&&(c == grid[crawl.y][crawl.x]))
 	      return true;
 	    crawl.x = initial_x;
 	    crawl.y = initial_y;
-	    crawl.moveCrawler(Crawler::Direction::DOWN_LEFT);
-	    if(c == grid[crawl.y][crawl.x])
+	    crawler_moved = crawl.moveCrawler(Crawler::Direction::DOWN_LEFT);
+	    if((!first_characters) && crawler_moved)
+	      std::cout << grid[crawl.y][crawl.x];
+
+	    if((crawler_moved)&&(c == grid[crawl.y][crawl.x]))
 	      return true;
 	    crawl.x = initial_x;
 	    crawl.y = initial_y;
@@ -131,16 +168,28 @@ public:
 	  
 	  if(!stop_rendering)
 	  {
+	  //  if(!first_characters)
+	   //   std::cout << "test\n";
 	    if('X' == grid[crawl.y][crawl.x])
 	    {
 	      unsigned int start_x{crawl.x}, start_y{crawl.y};
 	      if(check_for_letter('M'))
+	      {
 		if(check_for_letter('A'))
+		{
 		  if(check_for_letter('S'))
+		  {
 		    xmas_count++;
+		    std::cout << "S found at x: " << crawl.x << ", Y: " << crawl.y << std::endl;
+		  }
+		  std::cout << "A found at x: " << crawl.x << ", Y: " << crawl.y << std::endl;
+		}
+		std::cout << "M found at x: " << crawl.x << ", Y: " << crawl.y << std::endl;
+	      }
 	      crawl.x = start_x;
 	      crawl.y = start_y;
 	    }
+	  //  std::cout << grid[crawl.y][crawl.x];
 	    crawl.moveCrawler(Crawler::Direction::RIGHT);
 	    if(crawl.x == grid[crawl.y].size() - 1)
 	    {
@@ -148,18 +197,21 @@ public:
 		end_reached = true;
 	      else
 	      {
+	//	std::cout << "test2\n";
+		first_characters = true;
 		crawl.x = 0;
 		crawl.moveCrawler(Crawler::Direction::DOWN);
+	//	std::cout << std::endl;
 		end_reached = false;
+		if(crawl.y == GRID_SIZE-1)
+		  if(!end_reached_y)
+		    end_reached_y = true;
+		  else
+		    stop_rendering = true;
 	      }
 	    }
-	    if(crawl.y == GRID_SIZE-1)
-	      if(!end_reached_y)
-		end_reached_y = true;
-	      else
-		stop_rendering = true;
 	  }
-	 // for(int y = 0; y < grid.size(); y++)
+	   // for(int y = 0; y < grid.size(); y++)
 //	  {
 //	    for(int x = 0; x < grid[y].size(); x++)
 //	    {
