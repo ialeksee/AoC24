@@ -2,6 +2,8 @@
 #define VISUALISATION_H
 #define OLC_PGE_APPLICATION
 #include "olcPixelGameEngine/olcPixelGameEngine.h"
+#include <map>
+#include <utility>
 #define GRID_SIZE 10
 struct Crawler
 {
@@ -21,7 +23,7 @@ struct Crawler
   {
     int temp_x = x;
     int temp_y = y;
-    bool has_moved{false};
+    bool has_moved{true};
     switch(dir)
     {
       case Direction::LEFT:
@@ -54,16 +56,29 @@ struct Crawler
       break;
     };
 
-    if((temp_x >= 0) && (temp_x < GRID_SIZE))
+    if((temp_x < 0) || (temp_x >= GRID_SIZE) ||
+       (temp_y < 0) || (temp_y >= GRID_SIZE))
+    {
+      has_moved = false;
+    }
+    else
+    //if((temp_x >= 0) && (temp_x < GRID_SIZE) && (temp_x != x))
     {
       x = temp_x;
-      has_moved = true;
+      y = temp_y;
+      //has_moved = true;
     }
-    if((temp_y >= 0) && (temp_y < GRID_SIZE))
+    /*
+    if((temp_y < 0) || (temp_y >= GRID_SIZE) || (temp_y == y)
+    {
+      has_moved = false;
+    } 
+    if((temp_y >= 0) && (temp_y < GRID_SIZE) && (temp_y != y))
     {
       y = temp_y;
       has_moved = true;
     }
+    */
     return has_moved;
   }
 };
@@ -78,6 +93,12 @@ public:
 	bool end_reached{false};
 	bool end_reached_y{false};
 	bool first_characters{false};
+	bool print_once{true};
+	struct XmasCoords{
+	    olc::vu2d pos;
+	    char c;
+	};
+	std::vector<XmasCoords> found_c;
 	Visualisation()
 	{
 		sAppName = "Advent of Code 2024";
@@ -168,21 +189,27 @@ public:
 	  
 	  if(!stop_rendering)
 	  {
-	  //  if(!first_characters)
+  //  if(!first_characters)
 	   //   std::cout << "test\n";
+	    bool xmas_found = false;
 	    if('X' == grid[crawl.y][crawl.x])
 	    {
 	      unsigned int start_x{crawl.x}, start_y{crawl.y};
 	      std::cout << "X found at x: " << crawl.x << ", Y: " << crawl.y << std::endl;
+	      found_c.emplace_back(XmasCoords{{crawl.x, crawl.y}, 'X'});
 	      if(check_for_letter('M'))
 	      {
 		std::cout << "M found at x: " << crawl.x << ", Y: " << crawl.y << std::endl;
+		found_c.emplace_back(XmasCoords{{crawl.x, crawl.y}, 'M'});
 		if(check_for_letter('A'))
 		{
 		  std::cout << "A found at x: " << crawl.x << ", Y: " << crawl.y << std::endl;
+		  found_c.emplace_back(XmasCoords{{crawl.x, crawl.y}, 'A'});
 		  if(check_for_letter('S'))
 		  {
+		    xmas_found = true;
 		    xmas_count++;
+		    found_c.emplace_back(XmasCoords{{crawl.x, crawl.y}, 'S'});
 		    std::cout << "S found at x: " << crawl.x << ", Y: " << crawl.y << std::endl;
 		  }
 		}
@@ -226,6 +253,30 @@ public:
 	    DrawString(0, 0, txt);
 	    DrawString(0, 20, txt2);
 	    DrawString(0, 40, txt3);
+	  }
+	  else
+	  {
+	    if(print_once)
+	    {
+	      for(int j = 0; j < grid.size(); j++)
+	      {
+		for(int i = 0; i < grid[j].size(); i++)
+		  grid[j][i]= '.';
+		//std::cout << std::endl;
+	      }
+	      for(auto p : found_c)
+	      {
+		grid[p.pos.y][p.pos.x] = p.c;
+		std::cout << p.c << " at " << p.pos.x << ", " << p.pos.y << std::endl;
+	      }
+	      for(auto row : grid)
+	      {
+		for(auto c : row)
+		  std::cout << c;
+		std::cout << std::endl;
+	      }
+	      print_once = false;
+	    }
 	  }
 		//crawl.moveCrawler(Crawler::Direction::Right);
 		//std::cout << grid[y][x];
