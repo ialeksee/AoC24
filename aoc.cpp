@@ -236,6 +236,112 @@ void day4()
   }
 	 */
 }
+#define GRID_SIZE 12
+void day8()
+{
+  std::vector<std::vector<char>> grid;
+  Util::readByLine<char>("test.txt", grid);
+  struct Node
+  {
+    char c;
+    olc::vu2d pos;
+  };
+
+  for(auto row : grid)
+  {
+    for(auto c : row)
+    {
+      std::cout << c;
+    }
+    std::cout << std::endl;
+  }
+  
+  int overlap_counter = 0;
+  for(int y = 0; y < GRID_SIZE; y ++)
+  {
+    for(int x = 0; x < grid[y].size(); x++)
+    {
+      //search for an antenna
+      char c = grid[y][x];
+      if((c != '.') && (c != '#'))
+      {
+	Node first_node;
+	first_node.c = c;
+	first_node.pos.x = x;
+	first_node.pos.y = y;
+	bool first_row = true;
+	for(int y2 = y; y2 < GRID_SIZE; y2++)
+	{
+	  for(int x2 = 0; x2 < grid[y].size(); x2++)
+	  {
+	    if(first_row)
+	    {
+	      x2 = x+1;
+	      first_row = false;
+	    }
+	    c = grid[y2][x2];
+	    if(c == first_node.c)
+	    {
+	      olc::vi2d second_pos{x2, y};
+	      olc::vi2d distance = second_pos - first_node.pos;
+	      olc::vi2d distance_to_antinode = first_node.pos - distance;
+	      std::cout << "first node: " << first_node.pos.str() << std::endl; 
+	      std::cout << "second node: " << second_pos.str() << std::endl; 
+	      std::cout << "Distance: " << distance.str() << std::endl; 
+	      if((distance_to_antinode.x >= 0) && (distance_to_antinode.x < GRID_SIZE) &&
+		 (distance_to_antinode.y >= 0) && (distance_to_antinode.y < GRID_SIZE))
+	      {
+		std::cout << "Distance to antinode: " << distance_to_antinode.str() << std::endl; 
+		if(grid[distance_to_antinode.y][distance_to_antinode.x] == '.')
+		{
+		  grid[distance_to_antinode.y][distance_to_antinode.x] = '#'; 
+		}
+		else
+		{
+		  overlap_counter++;
+		}
+	      }
+	      distance_to_antinode = second_pos + distance;
+	      if((distance_to_antinode.x >= 0) && (distance_to_antinode.x < GRID_SIZE) &&
+		 (distance_to_antinode.y >= 0) && (distance_to_antinode.y < GRID_SIZE))
+	      {
+		std::cout << "Distance to antinode: " << distance_to_antinode.str() << std::endl; 
+		if(grid[distance_to_antinode.y][distance_to_antinode.x] == '.')
+		{
+		  grid[distance_to_antinode.y][distance_to_antinode.x] = '#'; 
+		}
+		else
+		{
+		  overlap_counter++;
+		}
+	      }
+	    }
+	  }
+	}
+      }
+    }
+  }
+
+  std::cout << std::endl;
+  std::cout << std::endl;
+  std::cout << std::endl;
+ 
+  for(auto row : grid)
+  {
+    for(auto c : row)
+    {
+      std::cout << c;
+    }
+    std::cout << std::endl;
+  }
+ 
+  //parse the grid
+  //find antenna save location
+  //then search for the next
+  //calculate the distance to the antinode
+  //update the grid with the antinodes
+  //if occuppied just increase the counter...
+}
 
 int main()
 {
@@ -244,5 +350,5 @@ int main()
 //    display.Start();
 
 
-  day4();
+  day8();
 }
