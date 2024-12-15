@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <regex>
 #include "visualisation.h"
+#include <stack>
 
 void day1()
 {
@@ -36,7 +37,7 @@ void day2()
   int old_safe_reps = 0;
   int new_safe_reps = 0;
   std::vector<std::vector<unsigned int>> reports;
-  Util::readByLine<unsigned int>("day2.txt", reports);
+  Util::readAsGrid<unsigned int>("day2.txt", reports);
 
   for(auto report : reports)
   {
@@ -206,7 +207,7 @@ void day3()
 void day4()
 {
   std::vector<std::vector<char>> grid;
-  Util::readByLine<char>("test.txt", grid);
+  Util::readAsGrid<char>("test.txt", grid);
   Crawler crawl;
 
   Visualisation display{};
@@ -240,7 +241,7 @@ void day4()
 void day8()
 {
   std::vector<std::vector<char>> grid;
-  Util::readByLine<char>("test.txt", grid);
+  Util::readAsGrid<char>("test.txt", grid);
   struct Node
   {
     char c;
@@ -343,6 +344,225 @@ void day8()
   //if occuppied just increase the counter...
 }
 
+void day15()
+{
+  constexpr int GRID_WIDTH{50};
+  constexpr int GRID_HEIGHT{50};
+  constexpr char WALL{'#'};
+  constexpr char BOX{'O'};
+  constexpr char ROBOT{'@'};
+  constexpr char EMPTY_SPACE{'.'};
+  
+  std::vector<std::string> instructions;
+
+  enum class Direction
+  {
+    right,
+    left,
+    up,
+    down
+  };
+
+  class Robot 
+  {
+    std::vector<std::vector<char>> grid;
+    public:
+      olc::vi2d pos;
+      Robot(olc::vi2d _pos):pos{_pos} 
+      {
+	Util::readAsGrid<char>("day15.txt", grid, true);
+      };
+      void print_grid()
+      {
+ 	for(auto row : grid)
+	{
+	  for(auto c : row)
+	  {
+	    std::cout << c;
+	  }
+	  std::cout << std::endl;
+	}
+	std::cout << std::endl;
+      };
+      
+      void count_boxes()
+      {
+	int coo_sum{0}, x{0}, y{0};
+	for(auto row : grid)
+	{
+	  for(auto c : row)
+	  {
+	    if(BOX == c)
+	    {
+	      int coo{0};
+
+	      coo = (100 * y) + x;
+	      coo_sum += coo;
+	    }
+	    x++;
+	  }
+	  y++;
+	  x = 0;
+	}
+	std::cout << "Coordinate sum: " << coo_sum << std::endl;
+      }
+
+      void move(Direction dir)
+      {
+	olc::vi2d new_pos{pos};
+	auto calculate_pos = [](olc::vi2d &new_pos, Direction dir)
+	{
+	  switch(dir)
+	  {
+	    case Direction::left:
+	      new_pos -= olc::vi2d({1,0});	    
+	    break;
+	    case Direction::right:
+	      new_pos += olc::vi2d({1,0});
+	    break;
+	    case Direction::up:
+	      new_pos -= olc::vi2d({0,1});
+	    break;
+	    case Direction::down:
+	      new_pos += olc::vi2d({0,1});
+	    break;
+	  }
+	};
+
+	calculate_pos(new_pos, dir);
+	// ! seems a suitable invalid character
+	char next_tile = '!';
+	auto check_validity =  [](olc::vi2d &new_pos) {
+	  if((new_pos.x >= 0) && (new_pos.x < GRID_WIDTH) &&
+	    (new_pos.y >= 0) && (new_pos.y < GRID_HEIGHT))
+	      return true;
+	  else
+	    return false;
+	};
+
+	if(check_validity(new_pos))
+	{
+	  next_tile = grid[new_pos.y][new_pos.x];
+//	  pos = new_pos;
+//	  std::cout << "Char @ pos " << pos << ": " << next_tile << std::endl;
+	}
+	else
+	{
+	  next_tile = '!';
+	  std::cout << "Invalid new position @ " << new_pos << std::endl;
+	}
+	
+	auto swap_tiles = [&](olc::vi2d new_p, olc::vi2d old_p)
+	{
+	  char old_c = grid[old_p.y][old_p.x];
+	  grid[old_p.y][old_p.x] = grid[new_p.y][new_p.x];
+	  grid[new_p.y][new_p.x] = old_c;
+	};
+
+	if('!' != next_tile)
+	{
+	  if(WALL != next_tile)
+	  {
+	    if(EMPTY_SPACE == next_tile)
+	    {
+	      grid[pos.y][pos.x] = EMPTY_SPACE;
+	      grid[new_pos.y][new_pos.x] = ROBOT;
+	      pos = new_pos;
+	    }
+	    else if(BOX == next_tile)
+	    {
+	      bool stop_checking = false;
+	      bool empty_stack = false;
+	      olc::vi2d next_pos{new_pos};
+	      std::stack<olc::vi2d> checked_pos;
+	      // stack
+	      checked_pos.push(next_pos);
+	      while(!stop_checking)
+	      {
+		calculate_pos(next_pos, dir);
+
+		if(check_validity(next_pos))
+		{
+		  checked_pos.push(next_pos);
+		  next_tile = grid[next_pos.y][next_pos.x];
+		  if(EMPTY_SPACE == next_tile)
+		  {
+		    stop_checking = true;
+		  }
+		  else if(WALL == next_tile)
+		  {
+		    //empty the stack
+		    while(!checked_pos.empty())
+		      checked_pos.pop();
+		    stop_checking = true;
+		  }		  
+		}
+		else
+		{
+		  stop_checking = true;
+		}	
+	      }
+	      while(!checked_pos.empty())
+	      {
+		olc::vi2d old_pos = checked_pos.top();
+		olc::vi2d new_pos{old_pos};
+		checked_pos.pop();
+		switch(dir)
+		{
+		  case Direction::left:
+		    calculate_pos(new_pos, Direction::right);
+		  break;
+		  case Direction::right:
+	  	    calculate_pos(new_pos, Direction::left);
+		  break;
+		  case Direction::up:
+		    calculate_pos(new_pos, Direction::down);
+	          break;
+	          case Direction::down:
+		    calculate_pos(new_pos, Direction::up);
+		  break;
+		}
+		
+		swap_tiles(old_pos, new_pos);
+		pos = old_pos;
+	      }
+	    }
+	  }
+	}
+      };
+  };
+
+
+  Util::readFile("day15.txt", instructions, true);
+  for(auto instr : instructions)
+    std::cout << instr << std::endl;
+
+  Robot roby{{24,24}};
+  roby.print_grid();
+  for(std::string instr : instructions)
+  {
+    std::stringstream ss;
+    char dir;
+    ss << instr;
+
+    while(ss >> dir)
+    {
+     // std::cout << "Move " << dir << ":" << std::endl;
+      if(dir == '<')
+	roby.move(Direction::left);
+      else if(dir == 'v')
+	roby.move(Direction::down);
+      else if(dir == '^')
+	roby.move(Direction::up);
+      else if(dir == '>')
+	roby.move(Direction::right);
+      //roby.print_grid();
+    }
+  }  
+  roby.print_grid();
+  roby.count_boxes();
+}
+
 int main()
 {
 //  Visualisation display{};
@@ -350,5 +570,5 @@ int main()
 //    display.Start();
 
 
-  day8();
+  day15();
 }
