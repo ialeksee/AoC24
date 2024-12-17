@@ -4,6 +4,7 @@
 #include <regex>
 #include "visualisation.h"
 #include <stack>
+#include "computer.h"
 
 void day1()
 {
@@ -563,6 +564,12 @@ void day15()
   roby.count_boxes();
 }
 
+void day17()
+{
+  Computer chrono{18427963, 0, 0, "2,4,1,1,7,5,0,3,4,3,1,6,5,5,3,0"};
+  chrono.run();
+}
+
 int main()
 {
 //  Visualisation display{};
@@ -570,5 +577,5 @@ int main()
 //    display.Start();
 
 
-  day15();
+  day17();
 }
